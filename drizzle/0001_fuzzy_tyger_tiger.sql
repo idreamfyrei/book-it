@@ -1,0 +1,1 @@
+ALTER TABLE "seats" ALTER COLUMN "name" DROP NOT NULL;
