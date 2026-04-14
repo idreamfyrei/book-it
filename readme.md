@@ -1,77 +1,101 @@
-# 🎟️ Book My Ticket — Single-file Server
+# Book It
 
-`index.mjs` is the only running backend. It serves the static login/register pages, mounts the auth router (`/api/auth/register`, `/api/auth/login`, `/api/auth/logout`), exposes `/health`, and hosts the transactional seat APIs (`GET /seats`, `PUT /:id`). No separate `app.js`, no refresh/me endpoints—everything lives in one Express file so the legacy Tailwind UI can call the familiar `/seats` route and the booking action while still using JWT cookies.
+This project is a simple seat booking system built with Node.js, Express, PostgreSQL, and Drizzle ORM. The backend is in a single file (`index.mjs`). It serves static HTML pages for login, registration, and seat selection, and provides APIs for authentication and booking.
 
-## 🚀 Features
-* `GET /health` for uptime checks.
-* Static UI endpoints: `/`, `/login`, `/register`, `/index` (all redirect/serve the HTML version of the login/register seat map; `/index` is protected by JWT).
-* Auth routes via `src/modules/auth`: register, login, logout (access/refresh cookies).
-* Seat APIs: `GET /seats` returns the grid (normalized to `{ id, name, isbooked, bookedAt }`), `PUT /:id` books a seat within a safe `SELECT … FOR UPDATE` transaction and writes to `bookings`.
-* Logout button on the seat map posts to `/api/auth/logout` (credentials included) and directs back to `/login`.
+## Features
 
-## 📂 Folder structure
+- Health check endpoint at `/health`
+- Static pages: `/`, `/login`, `/register`, `/index`
+- JWT-based authentication using cookies
+- Register, login, and logout functionality
+- Seat listing and booking APIs
+- Transaction-safe booking using `SELECT FOR UPDATE`
+
+## Project structure
+
 ```
 book-it/
-├── index.mjs                   # Solo Express server + seat transaction
-├── index.html                  # Legacy seat map UI (Tailwind + logout button)
+├── index.mjs                   # Main Express server
+├── index.html                  # Seat map UI (custom CSS)
 ├── public/
 │   └── auth/
 │       ├── login.html
 │       └── register.html
 ├── src/
 │   ├── common/
-│   │   ├── config/             # Postgres pool + Drizzle helpers
-│   │   ├── middleware/         # Api error handler, validation guard
-│   │   └── utils/              # ApiError, ApiResponse, jwt helpers
+│   │   ├── config/             # Database config
+│   │   ├── middleware/         # Error handling and validation
+│   │   └── utils/              # Helpers and JWT utilities
 │   └── modules/
-│       └── auth/               # routes/controllers/services/middleware for JWT
-├── docs/.env.example           # Environment template
-├── drizzle/                    # Auto-generated migrations + meta
-├── docker-compose.yml          # `postgresdb` service used locally
-├── init.sql                    # Optional SQL init script
+│       └── auth/               # Auth routes and logic
+├── drizzle/                    # Migrations
+├── docker-compose.yml          # Local Postgres setup
 ├── package.json
-├── readme.md
-└── node_modules/
+└── readme.md
 ```
 
-## 💻 Installation & run
-1. `npm install`
-2. Copy `docs/.env.example` → `.env` and fill in:
-   * `DATABASE_URL` (or the `DB_*` values for host/port/user/pass/db) pointing to your Postgres.
-   * `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`.
-   * Optional: `DB_SSL=true` if your Postgres requires SSL.
-3. `npm run db:up` to launch Docker Postgres (`postgresdb` service).
-4. `npm run db:migrate` to apply Drizzle migrations (`users`, `seats`, `bookings`).
-5. Seed seats if needed:
-   ```bash
-   docker compose exec postgresdb \
-     psql -U postgres -d book_it \
-     -c "INSERT INTO seats (is_booked) SELECT false FROM generate_series(1, 20) ON CONFLICT (id) DO NOTHING;"
-   ```
-6. Start the app:
-   * Dev: `npm run dev`
-   * Prod: `npm start` (runs `node index.mjs`)
+## Setup
 
-## 🧭 Request flow
-1. Visit `/login`/`/register` (served from `public/auth`). Logging in sets `accessToken`/`refreshToken` cookies.
-2. `/index` (or `/index.html`) is protected by the auth middleware; unauthenticated visitors are redirected to `/login`.
-3. `index.html` fetches `/seats` with `credentials: "include"` and renders the grid.
-4. Clicking a seat triggers `PUT /:id` with the booking transaction (no client-supplied name—the backend uses `req.user`).
-5. Logout button hits `/api/auth/logout` to clear cookies and redirects to `/login`.
+1. Install dependencies:
+```
+npm install
+```
 
-## 🗂 API summary
-| Method | Route | Description |
-| --- | --- | --- |
-| `POST` | `/api/auth/register` | Register with `{ name, email, password }`. |
-| `POST` | `/api/auth/login` | Login, issue JWT cookies. |
-| `POST` | `/api/auth/logout` | Clear the cookies. |
-| `GET` | `/seats` | Authenticated seat list JSON. |
-| `PUT` | `/:id` | Authenticated booking transaction (locks seat, marks `is_booked`, inserts into `bookings`). |
-| `GET` | `/health` | Uptime/heartbeat response. |
+2. Copy environment file:
+```
+cp docs/.env.example .env
+```
 
-## 🧠 Notes
-* `index.mjs` now squashes the seating logic, the auth router, the static routes, and health checks into one file so the UI and API live together.
-* The frontend still expects `{ id, name, isbooked, bookedAt }`; the server normalizes row data so the map works.
-* No more `/api/auth/refresh` or `/api/auth/me`; only the three auth routes are exposed.
-* `src/modules/auth/auth.middleware.js` handles token extraction, user lookup, and redirects unauthenticated requests such as `/seats` or `/index` to `/login`.
-* Drizzle schema in `src/common/db/schema.js` defines `users`, `seats`, `bookings`. Regenerate SQL (`npm run db:generate`) before running migrations if you change the schema.
+Fill in your database and JWT values.
+
+3. Start database (optional if using Docker):
+```
+npm run db:up
+```
+
+4. Run migrations:
+```
+npm run db:migrate
+```
+
+5. Start the server:
+```
+npm run dev
+```
+
+## How it works
+
+- Users register or log in from the HTML pages
+- Authentication sets cookies with access and refresh tokens
+- The `/index` page is protected and loads only for logged-in users
+- The frontend fetches `/seats` and renders the seat grid
+- Clicking a seat sends a booking request to the backend
+- The backend locks the row and updates booking safely
+
+## API
+
+POST /api/auth/register
+Register a new user
+
+POST /api/auth/login
+Log in and receive cookies
+
+POST /api/auth/logout
+Clear authentication cookies
+
+GET /seats
+Get all seats
+
+PUT /:id
+Book a seat
+
+GET /health
+Check if server is running
+
+## Notes
+
+- The frontend uses plain HTML and CSS. No framework is used.
+- All backend logic is inside `index.mjs`.
+- Database schema is managed using Drizzle.
+- Migrations must be run before starting the app.
+
