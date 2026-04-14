@@ -1,0 +1,9 @@
+import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { db } from "./src/common/db/index.js";
+
+await migrate(db, {
+  migrationsFolder: "./drizzle",
+});
+
+console.log("Migrations applied");
+process.exit(0);

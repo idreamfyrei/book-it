@@ -7,7 +7,7 @@
     "start": "node index.mjs",
     "dev": "nodemon index.mjs",
     "db:generate": "npx drizzle-kit generate",
-    "db:migrate": "npx drizzle-kit migrate",
+    "db:migrate": "node migrate.mjs",
     "db:up": "docker-compose up -d",
     "db:down": "docker-compose down",
     "db:watch": "nodemon --watch src/common/db/schema.js --ext js --exec \"npm run db:generate\""
