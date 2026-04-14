@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1776085316033,
-      "tag": "0000_remarkable_mindworm",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1776086685096,
-      "tag": "0001_fuzzy_tyger_tiger",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1776086815044,
-      "tag": "0002_worried_naoko",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1776089352571,
-      "tag": "0003_natural_crystal",
+      "when": 1776159457625,
+      "tag": "0000_normal_mercury",
       "breakpoints": true
     }
   ]
