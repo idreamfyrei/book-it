@@ -31,3 +31,7 @@ CREATE TABLE "users" (
 --> statement-breakpoint
 ALTER TABLE "bookings" ADD CONSTRAINT "bookings_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "bookings" ADD CONSTRAINT "bookings_seat_id_seats_id_fk" FOREIGN KEY ("seat_id") REFERENCES "public"."seats"("id") ON DELETE no action ON UPDATE no action;
+INSERT INTO "seats" ("name")
+SELECT 'Seat ' || i
+FROM generate_series(1, 60) AS i
+WHERE NOT EXISTS (SELECT 1 FROM seats);
