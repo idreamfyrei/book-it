@@ -6,13 +6,114 @@
     <title>Stellar Seat Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap");
-      body {
-        font-family: "Outfit", sans-serif;
-        background-color: #0f172a;
-        color: #f8fafc;
-      }
-    </style>
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap");
+
+body {
+  font-family: "Outfit", sans-serif;
+  background: linear-gradient(135deg, #020617, #0f172a, #020617);
+  color: #f8fafc;
+  margin: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 24px;
+  padding: 40px;
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  position: relative;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: 1px solid #475569;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: transparent;
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  border-color: #34d399;
+  color: #6ee7b7;
+}
+
+.table-container {
+  display: flex;
+  justify-content: center;
+}
+
+table {
+  border-spacing: 16px;
+}
+
+.seat {
+  width: 120px;
+  height: 120px;
+  border-radius: 18px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.available {
+  background: #10b981;
+  color: white;
+  border: 2px solid #34d399;
+  box-shadow: 0 0 20px rgba(16,185,129,0.3);
+  cursor: pointer;
+}
+
+.available:hover {
+  transform: translateY(-6px);
+  background: #34d399;
+  box-shadow: 0 15px 30px rgba(16,185,129,0.5);
+}
+
+.available:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 10px rgba(16,185,129,0.3);
+}
+
+.booked {
+  background: rgba(244,63,94,0.1);
+  color: rgba(244,63,94,0.6);
+  border: 1px solid rgba(244,63,94,0.3);
+  cursor: not-allowed;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #020617;
+  border: 1px solid #334155;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #cbd5f5;
+  opacity: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.seat:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+</style>
   </head>
   <body
     class="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
@@ -89,26 +190,22 @@
 
           // Base aesthetic classes - added 'relative group' for tooltip positioning
           const baseClasses =
-            "w-32 h-32 rounded-2xl text-center align-middle text-2xl font-bold transition-all duration-300 select-none relative group";
+            "seat";
 
           if (j[i].isbooked) {
-            td.className = `${baseClasses} bg-rose-500/10 text-rose-500/60 border border-rose-500/20 cursor-not-allowed`;
+            td.className = `${baseClasses} booked`;
             td.innerHTML = `
-                    <span class="relative z-10">${j[i].id}</span>
-                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-slate-900 border border-slate-700 text-sm text-slate-300 rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap shadow-2xl z-50 pointer-events-none font-normal shadow-[0_10px_25px_rgba(0,0,0,0.5)]">
-                        Booked by: <span class="font-bold text-white ml-1">${j[i].name}</span>
-                        <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px] border-[6px] border-transparent border-t-slate-700"></div>
-                        <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-[2px] border-[5px] border-transparent border-t-slate-900"></div>
-                    </div>
+                    <span>${j[i].id}</span>
+                    <div class="tooltip">Booked by: <strong>${j[i].name}</strong></div>
                 `;
           } else {
-            td.className = `${baseClasses} bg-emerald-500 text-white border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] cursor-pointer hover:bg-emerald-400 hover:-translate-y-1.5 hover:shadow-[0_10px_25px_rgba(16,185,129,0.5)] active:scale-95 active:shadow-[0_0_10px_rgba(16,185,129,0.3)]`;
-            td.innerHTML = `<span class="relative z-10">${j[i].id}</span>`;
+            td.className = `${baseClasses} available`;
+            td.innerHTML = `<span>${j[i].id}</span>`;
           }
 
           td.addEventListener("click", async function (e) {
             const currentTd = e.currentTarget;
-            if (currentTd.classList.contains("cursor-not-allowed")) {
+            if (currentTd.classList.contains("booked")) {
               return; // Seat is already taken
             }
 
@@ -125,14 +222,10 @@
               } else {
                 alert("Booked successfully!");
                 // Visually transition to booked state upon success
-                currentTd.className = `${baseClasses} bg-rose-500/10 text-rose-500/60 border border-rose-500/20 cursor-not-allowed`;
+                currentTd.className = `${baseClasses} booked`;
                 currentTd.innerHTML = `
-                            <span class="relative z-10">${id}</span>
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-slate-900 border border-slate-700 text-sm text-slate-300 rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap shadow-2xl z-50 pointer-events-none font-normal shadow-[0_10px_25px_rgba(0,0,0,0.5)]">
-                                Booked by: <span class="font-bold text-white ml-1">${name}</span>
-                                <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px] border-[6px] border-transparent border-t-slate-700"></div>
-                                <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-[2px] border-[5px] border-transparent border-t-slate-900"></div>
-                            </div>
+                            <span>${id}</span>
+                            <div class="tooltip">Booked by: <strong>${name}</strong></div>
                         `;
               }
             } catch (ex) {

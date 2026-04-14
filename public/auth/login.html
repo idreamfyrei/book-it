@@ -4,46 +4,174 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login • ChaiCode Cinema</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap");
+
+body {
+  margin: 0;
+  font-family: "Outfit", sans-serif;
+  background: linear-gradient(135deg, #020617, #0f172a, #020617);
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.main {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(30, 41, 59, 0.85);
+  padding: 40px;
+  border-radius: 24px;
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+h1 {
+  text-align: center;
+  margin: 0;
+  font-size: 28px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.alert {
+  border-radius: 16px;
+  border: 1px solid rgba(244,63,94,0.5);
+  background: rgba(244,63,94,0.1);
+  padding: 12px;
+  font-size: 14px;
+  color: #fecaca;
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-bottom: 4px;
+}
+
+.alert.show {
+  opacity: 1;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label span {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid #475569;
+  background: rgba(2,6,23,0.6);
+  color: white;
+  outline: none;
+  transition: 0.2s;
+  box-sizing: border-box;
+}
+
+input:focus {
+  border-color: #34d399;
+  box-shadow: 0 0 0 2px rgba(52,211,153,0.4);
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: #10b981;
+  color: #022c22;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(16,185,129,0.3);
+  transition: 0.2s;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+button:hover {
+  background: #34d399;
+  transform: scale(1.02);
+}
+
+.footer {
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.footer a {
+  color: #34d399;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #6ee7b7;
+}
+
+input, button {
+  width: 100%;
+  display: block;
+}
+</style>
   </head>
-  <body class="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
-    <main class="w-full max-w-lg space-y-6 rounded-3xl bg-slate-800/80 p-10 shadow-2xl border border-slate-700/50">
-      <div>
-        <h1 class="text-center text-3xl font-bold">ChaiCode Cinema</h1>
-        <p class="text-center text-sm text-slate-400">Login to access the seat map.</p>
+  <body>
+    <main class="main">
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <h1>ChaiCode Cinema</h1>
+        <p class="subtitle">Login to access the seat map.</p>
       </div>
       <div
         id="alert"
-        class="rounded-2xl border border-rose-400/50 bg-rose-500/10 px-4 py-3 text-sm text-rose-200 transition-opacity duration-200 opacity-0">
+        class="alert">
       </div>
-      <form id="login-form" class="space-y-4">
-        <label class="block">
-          <span class="text-sm text-slate-400">Email</span>
+      <form id="login-form">
+        <label>
+          <span>Email</span>
           <input
             required
             name="email"
             type="email"
-            class="mt-1 w-full rounded-2xl border border-slate-600 bg-slate-900/60 px-4 py-3 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
           />
         </label>
-        <label class="block">
-          <span class="text-sm text-slate-400">Password</span>
+        <label>
+          <span>Password</span>
           <input
             required
             name="password"
             type="password"
-            class="mt-1 w-full rounded-2xl border border-slate-600 bg-slate-900/60 px-4 py-3 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
           />
         </label>
         <button
           type="submit"
-          class="w-full rounded-2xl bg-emerald-500 px-4 py-3 font-semibold uppercase tracking-wide text-slate-900 shadow-lg shadow-emerald-500/30 transition hover:scale-[1.01] hover:bg-emerald-400"
         >
           Log in
         </button>
       </form>
-        <p class="text-center text-sm text-slate-400">
-          Not yet registered? <a class="text-emerald-400 hover:text-emerald-300" href="/register">Register</a>
+        <p class="footer">
+          Not yet registered? <a href="/register">Register</a>
         </p>
     </main>
     <script>
@@ -52,14 +180,13 @@
       const message = new URLSearchParams(window.location.search).get("message");
       if (message) {
         alertBox.textContent = decodeURIComponent(message);
-        alertBox.classList.remove("opacity-0");
-        alertBox.classList.add("opacity-100");
+        alertBox.classList.add("show");
       }
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
         alertBox.textContent = "";
-        alertBox.classList.remove("opacity-100");
+        alertBox.classList.remove("show");
         const payload = Object.fromEntries(new FormData(form));
 
         try {
@@ -75,14 +202,14 @@
           const data = await response.json();
           if (!response.ok) {
             alertBox.textContent = data?.message || "Login failed";
-            alertBox.classList.add("opacity-100");
+            alertBox.classList.add("show");
             return;
           }
 
           window.location.href = "/index.html";
         } catch (error) {
           alertBox.textContent = "Unable to reach the server";
-          alertBox.classList.add("opacity-100");
+          alertBox.classList.add("show");
         }
       });
     </script>
