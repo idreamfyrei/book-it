@@ -1,24 +1,49 @@
-# Book It
+# Book My Ticket
 
-This project is a simple seat booking system built with Node.js, Express, PostgreSQL, and Drizzle ORM. The backend is in a single file (`index.mjs`). It serves static HTML pages for login, registration, and seat selection, and provides APIs for authentication and booking.
+A seat booking project built with Node.js, Express, PostgreSQL, JWT authentication, and simple HTML pages.
+
+This project lets users:
+- register an account
+- log in
+- view available and booked seats
+- book a seat securely
+- stay logged in using access token + refresh token flow
+
+**Deployment** [Book It](https://book-it-bxi3.onrender.com/login)
+
+## Tech Used
+
+- Node.js
+- Express.js
+- PostgreSQL
+- JWT (`jsonwebtoken`) for authentication
+- `bcryptjs` for password hashing
+- `cookie-parser` for reading refresh token cookies
+- `cors` for cross-origin support
+- Joi for request validation
+- CSS for styling
+- Docker and Docker Compose for container setup
 
 ## Features
 
-- Health check endpoint at `/health`
-- Static pages: `/`, `/login`, `/register`, `/index`
-- JWT-based authentication using cookies
-- Register, login, and logout functionality
-- Seat listing and booking APIs
-- Transaction-safe booking using `SELECT FOR UPDATE`
+- User registration
+- User login
+- Protected routes using JWT auth middleware
+- View all seats
+- Book a seat
+- Concurrency-safe booking using SQL transaction and `FOR UPDATE`
+- Error formatting middleware
+- Input validation with DTOs
+- Simple frontend with login, register, and seat selection pages
 
-## Project structure
+## Project Structure
 
-```
+```text
 book-it/
 ├── index.mjs                   # Main Express server
 ├── index.html                  # Seat map UI (custom CSS)
 ├── public/
-│   └── auth/
+│   └── auth/                   # Login and register HTML pages
 │       ├── login.html
 │       └── register.html
 ├── src/
@@ -34,68 +59,119 @@ book-it/
 └── readme.md
 ```
 
-## Setup
+## How It Works
+
+### 1. Express server
+
+The app starts from `index.mjs`.
+
+It:
+- creates the Express server
+- connects to PostgreSQL using a connection pool
+- serves HTML pages
+- implements auth routes
+- uses a global error handler
+
+### 2. Authentication
+
+The auth flow is:
+- user registers with username and password
+- password is hashed before storing in DB
+- user logs in
+- server returns an access token
+- server also sets a refresh token in a cookie
+- protected routes check the access token
+- when access token expires, frontend asks for a new one using refresh token
+
+### 3. Seat booking
+
+When a user books a seat:
+- server starts a DB transaction
+- server locks the selected seat row using `FOR UPDATE`
+- if seat is already booked, request fails
+- otherwise server updates the row and commits the transaction
+
+It prevents two users from booking the same seat at the same time.
+
+## Installation
+
+### Option 1: Run locally
 
 1. Install dependencies:
-```
+
+```bash
 npm install
 ```
 
-2. Copy environment file:
-```
-cp docs/.env.example .env
+2. Create an environment file:
+
+```bash
+cp .env.example .env
 ```
 
-Fill in your database and JWT values.
+3. Update `.env` with your database and JWT values.
 
-3. Start database (optional if using Docker):
-```
-npm run db:up
-```
+4. Start PostgreSQL and create the database.
 
-4. Run migrations:
-```
-npm run db:migrate
+5. Run DB setup:
+
+```bash
+node setup-db.mjs
 ```
 
-5. Start the server:
-```
+6. Start the server:
+
+```bash
 npm run dev
 ```
 
-## How it works
+Or:
 
-- Users register or log in from the HTML pages
-- Authentication sets cookies with access and refresh tokens
-- The `/index` page is protected and loads only for logged-in users
-- The frontend fetches `/seats` and renders the seat grid
-- Clicking a seat sends a booking request to the backend
-- The backend locks the row and updates booking safely
+```bash
+npm start
+```
 
-## API
+### Option 2: Run with Docker
 
-POST /api/auth/register
-Register a new user
+```bash
+docker-compose up --build
+```
 
-POST /api/auth/login
-Log in and receive cookies
+The app will run on:
 
-POST /api/auth/logout
-Clear authentication cookies
+```text
+http://localhost:8080
+```
 
-GET /seats
-Get all seats
 
-PUT /:id
-Book a seat
+## Key Learnings
 
-GET /health
-Check if server is running
+- serve HTML files
+- return JSON data
+- global error handling through middleware
+- read Bearer token
+- block access when token is missing
+- validations and sanitisation
+- insert SQL query
+- SQL transactions
+- backend deployement and debugging
+- database setup in production
 
-## Notes
+## Screenshots
 
-- The frontend uses plain HTML and CSS. No framework is used.
+- **Login**
+  <img width="1451" height="911" alt="image" src="https://github.com/user-attachments/assets/e9acf8cc-2208-4d20-b7e0-57c7617eb91f" />
+
+- **Register**
+  <img width="1459" height="933" alt="image" src="https://github.com/user-attachments/assets/097c12c7-a09d-4523-8f2b-3093f468c0f1" />
+
+- **Seat booking**
+  <img width="1470" height="950" alt="image" src="https://github.com/user-attachments/assets/91292ef6-9777-49b0-bf1a-a7e2ed308a1d" />
+
+## Note
+
 - All backend logic is inside `index.mjs`.
 - Database schema is managed using Drizzle.
 - Migrations must be run before starting the app.
 
+This is a hobby project.
