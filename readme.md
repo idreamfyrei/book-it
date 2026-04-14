@@ -126,7 +126,7 @@ http://localhost:8080
 
 ### Authentication
 
-POST /api/auth/register
+- `POST /api/auth/register`
 
 Request body:
 ```
@@ -137,7 +137,7 @@ Request body:
 }
 ```
 
-POST /api/auth/login
+- `POST /api/auth/login`
 
 Request body:
 ```
@@ -147,15 +147,15 @@ Request body:
 }
 ```
 
-POST /api/auth/logout
+- `POST /api/auth/logout`
 
 ### Seats
 
-GET /seats
+- `GET /seats`
 
 Returns all seats only when user is logged in
 
-PUT /:id
+- `PUT /:id`
 
 Books a seat
 
